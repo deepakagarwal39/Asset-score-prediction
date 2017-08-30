@@ -1,0 +1,29 @@
+Process to Implement on Python
+
+RFECV (RFE with Cross Validation) implementation on Python. Random Forest (with 1000 trees) is the base classifier. Step size is 1, metric that has to be maximized is ROC AUC, and number of folds to measure ROC AUC is 3
+
+import matplotlib.pyplot as plt                                #To plot the output
+from sklearn.preprocessing import label_binarize               #To make labels binary
+from sklearn.feature_selection import RFECV                    #Importing the RFECV package
+from sklearn.ensemble import RandomForestClassifier            #Importing Random Forest
+
+#Variable ‘X’ is the dataframe of predictors. Y contains the dependent variable
+
+y = label_binarize(Y, classes=['N', 'Y'])                      #Converting labels to binary form
+model = RandomForestClassifier(n_estimators=1000)              #The base classifier object
+rfecv = RFECV(estimator=model, step=1, cv=3, 
+              scoring='roc_auc')                               #RFECV object with chosen parameters
+rfecv.fit(X, y)                                                #Fitting the object to the data
+X_new = X.loc[:, rfecv.support_]                               #Storing the new subset of features
+
+
+#Output
+
+print("Optimal number of features : %d" % rfecv.n_features_)   #printing the optimal number of features
+
+#Plot number of features VS. cross-validation scores
+plt.figure()
+plt.xlabel("Number of features selected")
+plt.ylabel("Cross validation score (ROC_AUC)")
+plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+plt.show()
